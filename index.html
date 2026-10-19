@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>СТЖБ - Тест</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; margin: 0; padding: 20px; color: #333; }
+        .container { max-width: 700px; background: #fff; margin: 0 auto; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        h1 { text-align: center; color: #2c3e50; font-size: 22px; }
+        .question { margin-bottom: 20px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
+        .question p { font-weight: bold; }
+        label { display: block; margin: 8px 0; cursor: pointer; }
+        button { background: #3498db; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 5px; cursor: pointer; display: block; width: 100%; margin-top: 20px; }
+        button:hover { background: #2980b9; }
+        #result { text-align: center; font-size: 20px; font-weight: bold; margin-top: 20px; color: #27ae60; }
+        .hidden { display: none; }
+        .input-group { margin-bottom: 20px; }
+        .input-group input { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+    </style>
+</head>
+<body>
+
+<div class="container" id="app">
+    <h1>Самай-төменгі жақ буыны (СТЖБ) тесті</h1>
+    
+    <div id="login-screen" class="input-group">
+        <label for="username"><b>Аты-жөніңізді жазыңыз:</b></label>
+        <input type="text" id="username" placeholder="Мысалы: Айдын Серікұлы" required>
+        <button onclick="startTest()">Тестті бастау</button>
+    </div>
+
+    <div id="quiz-screen" class="hidden">
+        <div id="questions-container"></div>
+        <button onclick="submitTest()">Нәтижені көру</button>
+    </div>
+
+    <div id="result" class="hidden"></div>
+</div>
+
+<script>
+    const questions = [
+        {
+            q: "1. Самай-төменгі жақ буыны қандай сүйектердің арасында орналасады?",
+            options: ["Самай сүйегі мен төменгі жақ сүйегі", "Жоғарғы жақ пен бетсүйек", "Шүйде сүйегі мен төменгі жақ", "Самай сүйегі мен жоғарғы жақ"],
+            correct: 0
+        },
+        {
+            q: "2. СТЖБ буын қуысын екі бөлімге бөлетін құрылым:",
+            options: ["Буын капсуласы", "Буын дискісі", "Латералды байлам", "Буын төмпешігі"],
+            correct: 1
+        },
+        {
+            q: "3. СТЖБ-ның латынша атауы:",
+            options: ["Articulatio humeri", "Articulatio coxae", "Articulatio temporomandibularis", "Articulatio genus"],
+            correct: 2
+        },
+        {
+            q: "4. Буын дискісінің негізгі қызметі:",
+            options: ["Тек бұлшықетті бекіту", "Қан өндіру", "Жүктемені тарату және буын қуысын бөлу", "Төменгі жақты қозғалмайтын ету"],
+            correct: 2
+        },
+        {
+            q: "5. Буын капсуласының негізгі қызметі:",
+            options: ["Буын қуысын қоршап, тұрақтылығын қамтамасыз ету", "Тек төменгі жақты көтеру", "Тістерді бекіту", "Тек қанмен қамтамасыз ету"],
+            correct: 0
+        },
+        {
+            q: "6. СТЖБ-ның негізгі сезімтал жүйкесі:",
+            options: ["N. hypoglossus", "N. auriculotemporalis", "N. accessorius", "N. olfactorius"],
+            correct: 1
+        },
+        {
+            q: "7. СТЖБ-ның қанмен қамтамасыз етілуіне қатысатын негізгі артериялардың бірі:",
+            options: ["A. femoralis", "A. radialis", "A. maxillaris", "A. poplitea"],
+            correct: 2
+        },
+        {
+            q: "8. Ауыз кең ашылған кезде буын басы мен диск қай бағытта сырғиды?",
+            options: ["Тек артқа", "Алға және төмен", "Тек жоғары", "Медиалды ғана"],
+            correct: 1
+        },
+        {
+            q: "9. СТЖБ-ның капсуласын нығайтатын негізгі байлам:",
+            options: ["Ligamentum laterale", "Ligamentum patellae", "Ligamentum cruciatum anterius", "Ligamentum deltoideum"],
+            correct: 0
+        },
+        {
+            q: "10. СТЖБ қандай қозғалыстарды орындайды?",
+            options: ["Тек айналу", "Тек сырғу", "Айналу және сырғу", "Қозғалыс жасамайды"],
+            correct: 2
+        },
+        {
+            q: "11. Буын дискісінің орталық бөлігі қандай тіннен тұрады?",
+            options: ["Гиалинді шеміршек", "Тығыз талшықты дәнекер тін", "Сүйек тіні", "Бірыңғай салалы бұлшықет"],
+            correct: 1
+        },
+        {
+            q: "12. СТЖБ-ның жоғарғы бөлімінде негізінен қандай қозғалыс басым?",
+            options: ["Сырғу", "Тек айналу", "Қозғалыс болмайды", "Тек тік ось бойымен айналу"],
+            correct: 0
+        },
+        {
+            q: "13. Төменгі жақ басы мен дискінің арасындағы төменгі бөлімде қандай қозғалыс басым?",
+            options: ["Сырғу ғана", "Айналу", "Қозғалыс болмайды", "Тек бүйірге ығысу"],
+            correct: 1
+        },
+        {
+            q: "14. Төменгі жақты көтеруге қатысатын бұлшықет:",
+            options: ["M. masseter", "M. orbicularis oculi", "M. sternocleidomastoideus", "M. platysma"],
+            correct: 0
+        },
+        {
+            q: "15. СТЖБ-ның ішкі синовиалды қабығының қызметі:",
+            options: ["Тісті түзу", "Синовиалды сұйықтық түзілуіне қатысу", "Сүйекті ұзарту", "Жүйке импульсін өткізу"],
+            correct: 1
+        },
+        {
+            q: "16. Науқас ауызын ашқанда СТЖБ аймағында сырт еткен дыбыс пайда болатынын айтады. Қандай құрылымның өзгерісі осы белгімен байланысты болуы мүмкін?",
+            options: ["Тек буын капсуласының сүйектенуі", "Буын дискісінің ығысуы және қозғалыс кезінде қайта орнығуы", "Тіл бұлшықетінің зақымдануы", "Мұрын қалқасының қисаюы"],
+            correct: 1
+        },
+        {
+            q: "17. Науқас ауызын толық аша алмайды. СТЖБ биомеханикасы тұрғысынан қандай қозғалыстарды бағалау қажет?",
+            options: ["Тек тілдің қозғалысын", "Тек мойынның айналуын", "Буын басының айналу және алға сырғу қозғалыстарын", "Тек иық буынының қозғалысын"],
+            correct: 2
+        },
+        {
+            q: "18. СТЖБ аймағындағы ауырсыну сезімін жеткізетін негізгі жүйкені атаңыз.",
+            options: ["N. auriculotemporalis", "N. opticus", "N. hypoglossus", "N. femoralis"],
+            correct: 0
+        },
+        {
+            q: "19. СТЖБ капсуласы қандай екі қабаттан тұрады?",
+            options: ["Сүйек қабаты және шеміршек қабаты", "Сыртқы талшықты қабат және ішкі синовиалды қабық", "Бұлшықет қабаты және шырышты қабық", "Эпителий қабаты және сүйек қабаты"],
+            correct: 1
+        },
+        {
+            q: "20. СТЖБ-ның қанмен қамтамасыз етілуіне қатысатын екі негізгі артерияны атаңыз.",
+            options: ["Сан артериясы және кәрі жілік артериясы", "Омыртқа артериясы және өкпе артериясы", "Жоғарғы жақ артериясы және беткей самай артериясы", "Алдыңғы ми артериясы және бүйрек артериясы"],
+            correct: 2
+        }
+    ];
+
+    let studentName = "";
+
+    function startTest() {
+        const input = document.getElementById("username").value.trim();
+        if(!input) {
+            alert("Өтінемін, аты-жөніңізді жазыңыз!");
+            return;
+        }
+        studentName = input;
+        document.getElementById("login-screen").classList.add("hidden");
+        document.getElementById("quiz-screen").classList.remove("hidden");
+        
+        let container = document.getElementById("questions-container");
+        let html = "";
+        questions.forEach((item, index) => {
+            html += `<div class="question"><p>${item.q}</p>`;
+            item.options.forEach((opt, optIndex) => {
+                html += `<label><input type="radio" name="q${index}" value="${optIndex}"> ${opt}</label>`;
+            });
+            html += `</div>`;
+        });
+        container.innerHTML = html;
+    }
+
+    function submitTest() {
+        let score = 0;
+        questions.forEach((item, index) => {
+            let selected = document.querySelector(`input[name="q${index}"]:checked`);
+            if(selected && parseInt(selected.value) === item.correct) {
+                score++;
+            }
+        });
+
+        document.getElementById("quiz-screen").classList.add("hidden");
+        let resDiv = document.getElementById("result");
+        resDiv.classList.remove("hidden");
+        resDiv.innerHTML = `Рақмет, ${studentName}!<br> Сіздің нәтижеңіз: ${questions.length} сұрақтан ${score} балл.`;
+    }
+</script>
+
+</body>
+</html>
